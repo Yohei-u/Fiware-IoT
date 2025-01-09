@@ -1,21 +1,12 @@
-#mosquitto testing setup
-docker exec -it 58f17d6dffacf84a269ed455c2d93682050a9d3a9afb186313e24494576c114a ash
-docker start 58f17d6dffacf84a269ed455c2d93682050a9d3a9afb186313e24494576c114a
-
-mosquitto_sub -t shellies/shellyht-749A22/sensor/temperature
+#mqtt config
+allow_anonymous true
+listener 1883 0.0.0.0
 
 #recast
 mosquitto_sub -t shellies/shellyht-749A22/sensor/temperature | while read -r message
 do
     mosquitto_pub -t ut/apiKey/shellyht-749A22/attrs -m "t|$message" -h mosquitto
 done
-
-#test recast
-mosquitto_sub -t ut/apiKey/shellyht-749A22/attrs
-
-#mqtt config
-allow_anonymous true
-listener 1883 0.0.0.0
 
 #service group
 curl -iX POST \
@@ -62,3 +53,14 @@ curl -G -X GET \
   'http://localhost:1026/v2/entities/' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /'
+
+
+
+#mosquitto testing setup
+docker exec -it 58f17d6dffacf84a269ed455c2d93682050a9d3a9afb186313e24494576c114a ash
+docker start 58f17d6dffacf84a269ed455c2d93682050a9d3a9afb186313e24494576c114a
+
+mosquitto_sub -t shellies/shellyht-749A22/sensor/temperature
+
+#test recast
+mosquitto_sub -t ut/apiKey/shellyht-749A22/attrs
