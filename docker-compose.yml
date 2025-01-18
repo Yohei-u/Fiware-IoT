@@ -11,8 +11,7 @@ services:
             - "1026"
         ports: 
             - "1026:1026"
-        command: -dbURI mongodb://mongo-db
-        
+        command: -logLevel DEBUG -dbURI mongodb://mongo-db
     iot-agent:
         image: fiware/iotagent-ul
         hostname: iot-agent
@@ -57,18 +56,20 @@ services:
         #volumes:
         #    - mongo-db:/data
             
-    mosquitto: #"local only mode" ?
-        image: eclipse-mosquitto
+    mosquitto:
         hostname: mosquitto
         container_name: mosquitto
+        build:
+            context: .
+            dockerfile: Dockerfile
         expose:
           - "1883"
           - "9001"
         ports:
           - "1883:1883"
           - "9001:9001"
-        #volumes:
-        #  - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+        volumes:
+          - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
         networks:
           - default
           
