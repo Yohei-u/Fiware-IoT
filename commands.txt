@@ -27,6 +27,7 @@ curl -iX POST \
      "device_id":   "shellyht-749A22",
      "entity_name": "urn:ngsi-ld:Temp:001",
      "entity_type": "Temp",
+	   "apikey": "apiKey",
      "protocol":    "PDI-IoTA-UltraLight",
      "transport":   "MQTT",
      "timezone":    "Europe/Berlin",
