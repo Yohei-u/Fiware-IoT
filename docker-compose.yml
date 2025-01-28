@@ -53,8 +53,8 @@ services:
             - "27017:27017"
         networks: 
             - default
-        #volumes:
-        #    - mongo-db:/data
+        volumes:
+            - mongo-db:/data
             
     mosquitto:
         hostname: mosquitto
@@ -72,6 +72,61 @@ services:
           - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
         networks:
           - default
-          
-#volumes:
-#  mongo-db: ~
+    quantumleap:
+        image: orchestracities/quantumleap
+        hostname: quantumleap
+        container_name: fiware-quantumleap
+        ports:
+            - "8668:8668"
+        depends_on:
+            - crate-db
+            - redis-db
+        environment:
+            - CRATE_HOST=crate-db
+            - REDIS_HOST=redis-db
+            - REDIS_PORT=6379
+            - LOGLEVEL=DEBUG
+    
+    crate-db:
+        image: crate
+        hostname: crate-db
+        container_name: db-crate
+        ports:
+            # Admin UI
+            - "4200:4200"
+            # Transport protocol
+            - "4300:4300"
+        command: crate -Cauth.host_based.enabled=false  -Ccluster.name=democluster -Chttp.cors.enabled=true -Chttp.cors.allow-origin="*" -Cdiscovery.type=single-node
+        environment:
+            - CRATE_HEAP_SIZE=2g # see https://crate.io/docs/crate/howtos/en/latest/deployment/containers/docker.html#troubleshooting
+        volumes:
+            - crate-db:/data 
+
+    redis-db:
+        image: redis
+        hostname: redis-db
+        container_name: db-redis
+        networks:
+            - default
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis-db:/data
+            
+    grafana:
+        image: grafana/grafana
+        container_name: grafana
+        depends_on:
+            - crate-db
+        ports:
+            - "3000:3000"
+        environment:
+            - GF_INSTALL_PLUGINS=orchestracities-map-panel,grafana-clock-panel,grafana-worldmap-panel
+        volumes:
+            - grafana:/var/lib/grafana
+            
+volumes:
+    mongo-db: ~
+    crate-db: ~
+    redis-db: ~
+    grafana: ~      
